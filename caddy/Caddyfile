@@ -1,0 +1,7 @@
+{
+	auto_https off
+}
+
+http://0.0.0.0:3000 
+
+reverse_proxy grafana:3000

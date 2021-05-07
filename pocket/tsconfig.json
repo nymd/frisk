@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "strict": true,
+    "target": "es6",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "lib": ["es6"],
+    "resolveJsonModule": true,
+    "declaration": true
+  },
+  "lib": ["es6"],
+  "exclude": [
+    "**/__mocks__",
+    "**/__tests__",
+    "./node_modules",
+    "**/*.test.ts",
+    "**/*.d.ts"
+  ]
+}
