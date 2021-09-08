@@ -3,8 +3,32 @@ version: '2.1'
 volumes:
     prometheus_data: {}
     grafana_data: {}
+    loki_data: {}
 
 services:
+
+  loki:
+    container_name: loki
+    image: grafana/loki:2.3.0
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/local-config.yaml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - default
+
+  promtail:
+    container_name: promtail
+    image: grafana/promtail:2.3.0
+    volumes:
+      - /var/log:/var/log
+      - /var/lib/docker/containers:/var/lib/docker/containers
+      - ./promtail/config.yml:/etc/promtail/config.yml
+      - ./promtail/promtail-targets.yml:/etc/promtail/promtail-targets.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - default
 
   frisk:
     build:
