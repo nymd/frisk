@@ -14,23 +14,27 @@ const pointTimestamp = new Date()
 const fs = require('fs'); 
 const csv = require('csv-parser');
 const nodes: any[] = [];
+let heightPoints: Point[] = [];
 
 fs.createReadStream(nodeCSV).pipe(csv())
 .on('data', (data: any) => nodes.push(data));
 
-var jobHeight = new CronJob('*/20 * * * * *', function() {
-  processNodeHeights(nodes);
-}, () => { writeAPI.flush() }, true, 'America/Vancouver');
+var jobHeight = new CronJob('*/20 * * * * *', async function() {
+  await processNodeHeights(nodes)
+  console.log(`writing heights`)
+  writeAPI.writePoints(heightPoints)
+  writeAPI.flush() 
+}, null, true, 'America/Vancouver');
 jobHeight.start();
 
-var jobBalance = new CronJob('0 */1 * * * *', function() {
+var jobBalance = new CronJob('0 */5 * * * *', function() {
   processNodeBalancesAndClaims(nodes);
-}, () => { writeAPI.flush() }, true, 'America/Vancouver');
+}, null, true, 'America/Vancouver');
 jobBalance.start();
 
 var jobJailed = new CronJob('0 0 * * * *', function() {
   processNodeJailings(nodes);
-}, () => { writeAPI.flush() }, true, 'America/Vancouver');
+}, null, true, 'America/Vancouver');
 jobJailed.start();
 
 async function processNodeJailings(nodes: Array<any>) {
@@ -65,23 +69,11 @@ async function processNodeJailings(nodes: Array<any>) {
 
 async function processNodeHeights(nodes: Array<any>) {
 
+  heightPoints = [];
   for (const node of nodes) {
     
     const nodeNumber = node.name.split("-").pop()
-    const nodeHeight = await fetchHeight(set, nodeNumber);
-
-    if (nodeHeight) {
-      const pointHeight = new Point('height')
-          .tag('set', set)
-          .tag('address', node.address)
-          .tag('moniker', node.name)
-          .intField('height', nodeHeight)
-          .timestamp(pointTimestamp)
-
-      writeAPI.writePoint(pointHeight)
-      writeAPI.flush()
-      console.log(`${node.name} ${nodeHeight}`)
-    }
+    await fetchHeight(node, set, nodeNumber);
   }
 }
 
@@ -126,7 +118,7 @@ async function processNodeBalancesAndClaims(nodes: Array<any>) {
   console.log(`Total node balance: ${convertedTotalBalance}`);
 }
 
-async function fetchHeight(set: string, number: number): Promise<string> {
+async function fetchHeight(node: any, set: string, number: number): Promise<string> {
   const command = `docker exec -i ${set}${number} pocket query height`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
@@ -135,7 +127,15 @@ async function fetchHeight(set: string, number: number): Promise<string> {
     const matches = regex.exec(stdout);
     if (matches && matches[0]) {
       const height = matches[0].replace('"height": ', '');
-      return height;
+      if (height) {
+        const point = new Point('height')
+            .tag('set', set)
+            .tag('address', node.address)
+            .tag('moniker', node.name)
+            .intField('height', height)
+            .timestamp(pointTimestamp)
+        heightPoints.push(point)
+      }
     }
   }
   return "";
