@@ -14,6 +14,8 @@ const fs = require('fs');
 const csv = require('csv-parser');
 const nodes: any[] = [];
 let pointHeights: Point[] = [];
+let pointBalances: Point[] = [];
+let pointClaims: Point[] = [];
 
 fs.createReadStream(nodeCSV).pipe(csv())
 .on('data', (data: any) => nodes.push(data));
@@ -27,6 +29,9 @@ jobHeight.start();
 
 var jobBalance = new CronJob('0 */5 * * * *', function() {
   processNodeBalancesAndClaims(nodes);
+  writeAPI.writePoints(pointBalances)
+  writeAPI.writePoints(pointClaims)
+  writeAPI.flush()
 }, null, true, 'America/Vancouver');
 jobBalance.start();
 
@@ -84,37 +89,10 @@ async function processNodeBalancesAndClaims(nodes: Array<any>) {
   for (const node of nodes) {
 
     const pointTimestamp = new Date()
-
     const nodeNumber = node.name.split("-").pop()
-    let nodeBalance = await fetchBalance(set, nodeNumber, node.address);
+    await fetchClaims(node, set, nodeNumber, node.address);
+    await fetchBalance(node, set, nodeNumber, node.address);
 
-    nodeBalance = nodeBalance - startingAmount;
-    const convertedNodeBalance = Math.round(upokt(nodeBalance));
-
-    const nodeClaims = await fetchClaims(set, nodeNumber, node.address);
-    
-    const pointClaims = new Point('claims')
-        .tag('set', set)
-        .tag('address', node.address)
-        .tag('moniker', node.name)
-        .intField('pokt', nodeClaims)
-        .timestamp(pointTimestamp)
-
-    writeAPI.writePoint(pointClaims)
-
-    if (convertedNodeBalance > 0) {
-      const pointBalance = new Point('balance')
-          .tag('set', set)
-          .tag('address', node.address)
-          .tag('moniker', node.name)
-          .floatField('pokt', convertedNodeBalance)
-          .timestamp(pointTimestamp)
-
-      writeAPI.writePoint(pointBalance)
-      writeAPI.flush()
-    }
-    console.log(`${node.name} balance: ${convertedNodeBalance}, claims: ${nodeClaims}`);
-    totalBalance = totalBalance + nodeBalance;
   }
   const convertedTotalBalance = upokt(totalBalance);
   console.log(`Total node balance: ${convertedTotalBalance}`);
@@ -146,7 +124,9 @@ async function fetchHeight(node: any, set: string, number: number): Promise<stri
   return "";
 }
 
-async function fetchClaims(set: string, number: number, address: string): Promise<number> {
+async function fetchClaims(node: any, set: string, number: number, address: string): Promise<number> {
+
+  const pointTimestamp = new Date()
   const command = `docker exec -i ${set}${number} pocket query node-claims ${address}`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
@@ -161,7 +141,14 @@ async function fetchClaims(set: string, number: number, address: string): Promis
           claims = claims + claimSet;
         }
       }
-      return claims;
+      const pointClaim = new Point('claims')
+        .tag('set', set)
+        .tag('address', node.address)
+        .tag('moniker', node.name)
+        .intField('pokt', claims)
+        .timestamp(pointTimestamp)
+
+      pointClaims.push(pointClaim)  
     }
   }
   return 0;
@@ -185,7 +172,9 @@ async function fetchJailedStatus(set: string, number: number, address: string): 
   return null;
 }
 
-async function fetchBalance(set: string, number: number, address: string): Promise<number> {
+async function fetchBalance(node: any, set: string, number: number, address: string): Promise<number> {
+  
+  const pointTimestamp = new Date()
   const command = `docker exec -i ${set}${number} pocket query balance ${address}`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
@@ -193,9 +182,23 @@ async function fetchBalance(set: string, number: number, address: string): Promi
     const regex = /"balance":\s([\d])+/g;
     const matches = regex.exec(stdout);
     if (matches && matches[0]) {
-      return parseInt(matches[0].replace('"balance": ', ''));
+      let nodeBalance = parseInt(matches[0].replace('"balance": ', ''));
+      nodeBalance = nodeBalance - startingAmount;
+      const convertedNodeBalance = Math.round(upokt(nodeBalance));
+      
+      if (convertedNodeBalance > 0) {
+        const pointBalance = new Point('balance')
+            .tag('set', set)
+            .tag('address', node.address)
+            .tag('moniker', node.name)
+            .floatField('pokt', convertedNodeBalance)
+            .timestamp(pointTimestamp)
+
+        pointBalances.push(pointBalance)
+        console.log(`${node.name} balance: ${convertedNodeBalance}`);
+      }
     }
-    return 0;
+    // return 0;
   }
   return 0;
 }
