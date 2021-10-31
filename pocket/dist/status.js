@@ -31,15 +31,15 @@ fs.createReadStream(nodeCSV).pipe(csv())
     .on('data', (data) => nodes.push(data));
 var jobHeight = new CronJob('*/20 * * * * *', function () {
     processNodeHeights(nodes);
-}, null, true, 'America/Vancouver');
+}, () => { influx_1.writeAPI.flush(); }, true, 'America/Vancouver');
 jobHeight.start();
 var jobBalance = new CronJob('0 */1 * * * *', function () {
     processNodeBalancesAndClaims(nodes);
-}, null, true, 'America/Vancouver');
+}, () => { influx_1.writeAPI.flush(); }, true, 'America/Vancouver');
 jobBalance.start();
 var jobJailed = new CronJob('0 0 * * * *', function () {
     processNodeJailings(nodes);
-}, null, true, 'America/Vancouver');
+}, () => { influx_1.writeAPI.flush(); }, true, 'America/Vancouver');
 jobJailed.start();
 function processNodeJailings(nodes) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -82,7 +82,6 @@ function processNodeHeights(nodes) {
                 console.log(`${node.name} ${nodeHeight}`);
             }
         }
-        influx_1.writeAPI.flush();
     });
 }
 function processNodeBalancesAndClaims(nodes) {

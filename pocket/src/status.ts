@@ -20,24 +20,24 @@ fs.createReadStream(nodeCSV).pipe(csv())
 
 var jobHeight = new CronJob('*/20 * * * * *', function() {
   processNodeHeights(nodes);
-}, null, true, 'America/Vancouver');
+}, () => { writeAPI.flush() }, true, 'America/Vancouver');
 jobHeight.start();
 
 var jobBalance = new CronJob('0 */1 * * * *', function() {
   processNodeBalancesAndClaims(nodes);
-}, null, true, 'America/Vancouver');
+}, () => { writeAPI.flush() }, true, 'America/Vancouver');
 jobBalance.start();
 
 var jobJailed = new CronJob('0 0 * * * *', function() {
   processNodeJailings(nodes);
-}, null, true, 'America/Vancouver');
+}, () => { writeAPI.flush() }, true, 'America/Vancouver');
 jobJailed.start();
 
 async function processNodeJailings(nodes: Array<any>) {
   for (const node of nodes) {
     const nodeNumber = node.name.split("-").pop()
     let nodeJailed = await fetchJailedStatus(set, nodeNumber, node.address);
-    
+
     if (nodeJailed) {
       console.log(`Node: ${node.name}, jailed: ${nodeJailed}`);
     
@@ -81,7 +81,6 @@ async function processNodeHeights(nodes: Array<any>) {
       console.log(`${node.name} ${nodeHeight}`)
     }
   }
-  writeAPI.flush()
 }
 
 async function processNodeBalancesAndClaims(nodes: Array<any>) {
