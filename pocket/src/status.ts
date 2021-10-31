@@ -75,25 +75,25 @@ async function processNodeJailings(nodes: Array<any>) {
 async function processNodeHeights(nodes: Array<any>) {
 
   pointHeights = [];
+  const pointTimestamp = new Date()
   for (const node of nodes) {
-    
-    const pointTimestamp = new Date()
     const nodeNumber = node.name.split("-").pop()
     await fetchHeight(node, set, nodeNumber, pointTimestamp);
   }
 }
 
 async function processNodeBalancesAndClaims(nodes: Array<any>) {
-
+  
+  pointBalances = [];
+  pointClaims = [];
+  const pointTimestamp = new Date()
   for (const node of nodes) {
-
-    const pointTimestamp = new Date()
     const nodeNumber = node.name.split("-").pop()
     await fetchClaims(node, set, nodeNumber, node.address, pointTimestamp);
     await fetchBalance(node, set, nodeNumber, node.address, pointTimestamp);
 
   }
-  
+
 }
 
 async function fetchHeight(node: any, set: string, number: number, pointTimestamp: Date): Promise<string> {
