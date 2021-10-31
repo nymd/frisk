@@ -49,6 +49,7 @@ async function processNodeJailings(nodes: Array<any>) {
           .timestamp(pointTimestamp)
 
       writeAPI.writePoint(pointJailed)
+      writeAPI.flush()
 
       if (mode === "unjail") {
         const command = `pocket --remoteCLIURL ${dataNodeURL} nodes unjail ${node.address} mainnet 10000 false`;
@@ -78,6 +79,7 @@ async function processNodeHeights(nodes: Array<any>) {
           .timestamp(pointTimestamp)
 
       writeAPI.writePoint(pointHeight)
+      writeAPI.flush()
       console.log(`${node.name} ${nodeHeight}`)
     }
   }
@@ -115,6 +117,7 @@ async function processNodeBalancesAndClaims(nodes: Array<any>) {
           .timestamp(pointTimestamp)
 
       writeAPI.writePoint(pointBalance)
+      writeAPI.flush()
     }
     console.log(`${node.name} balance: ${convertedNodeBalance}, claims: ${nodeClaims}`);
     totalBalance = totalBalance + nodeBalance;
