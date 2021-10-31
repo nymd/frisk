@@ -20,7 +20,7 @@ var argv = require('minimist')(process.argv.slice(2));
 var CronJob = require('cron').CronJob;
 const set = argv['_'][0];
 const mode = argv['_'][1];
-const nodeCSV = `./src/accounts/${set}.csv`;
+const nodeCSV = `./src/accounts/${set}-nodes.csv`;
 const dataNodeURL = 'https://peer-1.nodes.pokt.network:4200';
 const startingAmount = 100000;
 const pointTimestamp = new Date();
@@ -33,7 +33,7 @@ var jobHeight = new CronJob('*/20 * * * * *', function () {
     processNodeHeights(nodes);
 }, null, true, 'America/Vancouver');
 jobHeight.start();
-var jobBalance = new CronJob('0 */5 * * * *', function () {
+var jobBalance = new CronJob('0 */1 * * * *', function () {
     processNodeBalancesAndClaims(nodes);
 }, null, true, 'America/Vancouver');
 jobBalance.start();
@@ -44,7 +44,8 @@ jobJailed.start();
 function processNodeJailings(nodes) {
     return __awaiter(this, void 0, void 0, function* () {
         for (const node of nodes) {
-            let nodeJailed = yield fetchJailedStatus(node.address);
+            const nodeNumber = node.name.split("-").pop();
+            let nodeJailed = yield fetchJailedStatus(set, nodeNumber, node.address);
             if (nodeJailed) {
                 console.log(`Node: ${node.name}, jailed: ${nodeJailed}`);
                 const pointJailed = new influxdb_client_1.Point('jailed')
@@ -68,7 +69,8 @@ function processNodeJailings(nodes) {
 function processNodeHeights(nodes) {
     return __awaiter(this, void 0, void 0, function* () {
         for (const node of nodes) {
-            const nodeHeight = yield fetchHeight(node.name, node.port);
+            const nodeNumber = node.name.split("-").pop();
+            const nodeHeight = yield fetchHeight(set, nodeNumber);
             if (nodeHeight) {
                 const pointHeight = new influxdb_client_1.Point('height')
                     .tag('set', set)
@@ -87,10 +89,11 @@ function processNodeBalancesAndClaims(nodes) {
     return __awaiter(this, void 0, void 0, function* () {
         let totalBalance = 0;
         for (const node of nodes) {
-            let nodeBalance = yield fetchBalance(node.address);
+            const nodeNumber = node.name.split("-").pop();
+            let nodeBalance = yield fetchBalance(set, nodeNumber, node.address);
             nodeBalance = nodeBalance - startingAmount;
             const convertedNodeBalance = Math.round(upokt(nodeBalance));
-            const nodeClaims = yield fetchClaims(node.address);
+            const nodeClaims = yield fetchClaims(set, nodeNumber, node.address);
             const pointClaims = new influxdb_client_1.Point('claims')
                 .tag('set', set)
                 .tag('address', node.address)
@@ -114,9 +117,9 @@ function processNodeBalancesAndClaims(nodes) {
         console.log(`Total node balance: ${convertedTotalBalance}`);
     });
 }
-function fetchHeight(name, port) {
+function fetchHeight(set, number) {
     return __awaiter(this, void 0, void 0, function* () {
-        const command = `pocket --remoteCLIURL https://${name}.nachonodes.com:${port} query height`;
+        const command = `docker exec -i ${set}${number} pocket query height`;
         const { stdout, stderr } = yield exec(command);
         if (!stderr) {
             const regex = /"height":\s([\w])+/g;
@@ -129,9 +132,9 @@ function fetchHeight(name, port) {
         return "";
     });
 }
-function fetchClaims(address) {
+function fetchClaims(set, number, address) {
     return __awaiter(this, void 0, void 0, function* () {
-        const command = `pocket --remoteCLIURL ${dataNodeURL} query node-claims ${address}`;
+        const command = `docker exec -i ${set}${number} pocket query node-claims ${address}`;
         const { stdout, stderr } = yield exec(command);
         if (!stderr) {
             const regex = /"total_proofs":\s([\d])+/g;
@@ -150,9 +153,9 @@ function fetchClaims(address) {
         return 0;
     });
 }
-function fetchJailedStatus(address) {
+function fetchJailedStatus(set, number, address) {
     return __awaiter(this, void 0, void 0, function* () {
-        const command = `pocket --remoteCLIURL ${dataNodeURL} query node ${address}`;
+        const command = `docker exec -i ${set}${number} pocket query node ${address}`;
         const { stdout, stderr } = yield exec(command);
         if (!stderr) {
             const regex = /"jailed":\s([\w])+/g;
@@ -168,9 +171,9 @@ function fetchJailedStatus(address) {
         return null;
     });
 }
-function fetchBalance(address) {
+function fetchBalance(set, number, address) {
     return __awaiter(this, void 0, void 0, function* () {
-        const command = `pocket --remoteCLIURL ${dataNodeURL} query balance ${address}`;
+        const command = `docker exec -i ${set}${number} pocket query balance ${address}`;
         const { stdout, stderr } = yield exec(command);
         if (!stderr) {
             const regex = /"balance":\s([\d])+/g;

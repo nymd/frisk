@@ -23,7 +23,7 @@ var jobHeight = new CronJob('*/20 * * * * *', function() {
 }, null, true, 'America/Vancouver');
 jobHeight.start();
 
-var jobBalance = new CronJob('0 */5 * * * *', function() {
+var jobBalance = new CronJob('0 */1 * * * *', function() {
   processNodeBalancesAndClaims(nodes);
 }, null, true, 'America/Vancouver');
 jobBalance.start();
@@ -35,7 +35,9 @@ jobJailed.start();
 
 async function processNodeJailings(nodes: Array<any>) {
   for (const node of nodes) {
-    let nodeJailed = await fetchJailedStatus(node.address);
+    const nodeNumber = node.name.split("-").pop()
+    let nodeJailed = await fetchJailedStatus(set, nodeNumber, node.address);
+    
     if (nodeJailed) {
       console.log(`Node: ${node.name}, jailed: ${nodeJailed}`);
     
@@ -63,8 +65,9 @@ async function processNodeJailings(nodes: Array<any>) {
 async function processNodeHeights(nodes: Array<any>) {
 
   for (const node of nodes) {
-   
-    const nodeHeight = await fetchHeight(node.name, node.port);
+    
+    const nodeNumber = node.name.split("-").pop()
+    const nodeHeight = await fetchHeight(set, nodeNumber);
 
     if (nodeHeight) {
       const pointHeight = new Point('height')
@@ -87,12 +90,13 @@ async function processNodeBalancesAndClaims(nodes: Array<any>) {
 
   for (const node of nodes) {
 
-    let nodeBalance = await fetchBalance(node.address);
+    const nodeNumber = node.name.split("-").pop()
+    let nodeBalance = await fetchBalance(set, nodeNumber, node.address);
 
     nodeBalance = nodeBalance - startingAmount;
     const convertedNodeBalance = Math.round(upokt(nodeBalance));
 
-    const nodeClaims = await fetchClaims(node.address);
+    const nodeClaims = await fetchClaims(set, nodeNumber, node.address);
     
     const pointClaims = new Point('claims')
         .tag('set', set)
@@ -120,8 +124,8 @@ async function processNodeBalancesAndClaims(nodes: Array<any>) {
   console.log(`Total node balance: ${convertedTotalBalance}`);
 }
 
-async function fetchHeight(name: string, port: number): Promise<string> {
-  const command = `pocket --remoteCLIURL https://${name}.nachonodes.com:${port} query height`;
+async function fetchHeight(set: string, number: number): Promise<string> {
+  const command = `docker exec -i ${set}${number} pocket query height`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
   {
@@ -135,8 +139,8 @@ async function fetchHeight(name: string, port: number): Promise<string> {
   return "";
 }
 
-async function fetchClaims(address: string): Promise<number> {
-  const command = `pocket --remoteCLIURL ${dataNodeURL} query node-claims ${address}`;
+async function fetchClaims(set: string, number: number, address: string): Promise<number> {
+  const command = `docker exec -i ${set}${number} pocket query node-claims ${address}`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
   {
@@ -156,8 +160,8 @@ async function fetchClaims(address: string): Promise<number> {
   return 0;
 }
 
-async function fetchJailedStatus(address: string): Promise<boolean|null> {
-  const command = `pocket --remoteCLIURL ${dataNodeURL} query node ${address}`;
+async function fetchJailedStatus(set: string, number: number, address: string): Promise<boolean|null> {
+  const command = `docker exec -i ${set}${number} pocket query node ${address}`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
   {
@@ -174,8 +178,8 @@ async function fetchJailedStatus(address: string): Promise<boolean|null> {
   return null;
 }
 
-async function fetchBalance(address: string): Promise<number> {
-  const command = `pocket --remoteCLIURL ${dataNodeURL} query balance ${address}`;
+async function fetchBalance(set: string, number: number, address: string): Promise<number> {
+  const command = `docker exec -i ${set}${number} pocket query balance ${address}`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
   {
