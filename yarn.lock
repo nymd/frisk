@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@influxdata/influxdb-client@^1.20.0":
+  version "1.20.0"
+  resolved "https://registry.yarnpkg.com/@influxdata/influxdb-client/-/influxdb-client-1.20.0.tgz#de9830387003c22530c9f93eda424e1e29416258"
+  integrity sha512-jaKSI63hmQ5VSkJrFJkYIXaKlhoF+mGd4HmOf7v/X7pmEi69ReHp922Wyx6/OeCrpndRMbsadk+XmGNdd43cFw==
+
 bintrees@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/bintrees/-/bintrees-1.0.1.tgz#0e655c9b9c2435eaab68bf4027226d2b55a34524"

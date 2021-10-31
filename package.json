@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.20.0",
     "prom-client": "^13.1.0"
   }
 }
