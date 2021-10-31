@@ -1,0 +1,123 @@
+- targets: ["eb1739e1f889"]
+  labels:
+    container_name: "loki"
+- targets: ["923545ec4c73"]
+  labels:
+    container_name: "pushgateway"
+- targets: ["a5a6be88db3a"]
+  labels:
+    container_name: "frisk"
+- targets: ["2402c9c2525c"]
+  labels:
+    container_name: "cadvisor"
+- targets: ["a3e3b08ffaa7"]
+  labels:
+    container_name: "prometheus"
+- targets: ["901032f1f6a4"]
+  labels:
+    container_name: "grafana"
+- targets: ["3ea8e1cfa349"]
+  labels:
+    container_name: "nodeexporter"
+- targets: ["5cf2e17dc26b"]
+  labels:
+    container_name: "promtail"
+- targets: ["b56a658a766d"]
+  labels:
+    container_name: "alertmanager"
+- targets: ["f73ad7fbcf6c"]
+  labels:
+    container_name: "caddy"
+- targets: ["466480ee1c64"]
+  labels:
+    container_name: "nginx-sky"
+- targets: ["95bd7c7fe8a3"]
+  labels:
+    container_name: "sky9"
+- targets: ["5f4a6d6842df"]
+  labels:
+    container_name: "sky15"
+- targets: ["798b728324a5"]
+  labels:
+    container_name: "sky19"
+- targets: ["6573189a9aac"]
+  labels:
+    container_name: "sky13"
+- targets: ["b4c17dbd22d7"]
+  labels:
+    container_name: "sky11"
+- targets: ["b0be829cb1ed"]
+  labels:
+    container_name: "sky26"
+- targets: ["7bd53ff7a41c"]
+  labels:
+    container_name: "sky21"
+- targets: ["e7b3bfc45a3e"]
+  labels:
+    container_name: "sky18"
+- targets: ["9c4394e1dfb5"]
+  labels:
+    container_name: "sky17"
+- targets: ["cb86ee604029"]
+  labels:
+    container_name: "sky14"
+- targets: ["79787cd64b80"]
+  labels:
+    container_name: "sky2"
+- targets: ["87aa3a7d2a35"]
+  labels:
+    container_name: "sky6"
+- targets: ["7aed8f6bdc79"]
+  labels:
+    container_name: "sky28"
+- targets: ["b884054ebf64"]
+  labels:
+    container_name: "sky25"
+- targets: ["f94eaced727e"]
+  labels:
+    container_name: "sky8"
+- targets: ["a5a75e596ff1"]
+  labels:
+    container_name: "sky12"
+- targets: ["0506a97f0afd"]
+  labels:
+    container_name: "sky1"
+- targets: ["03218ddae046"]
+  labels:
+    container_name: "sky4"
+- targets: ["51b725871640"]
+  labels:
+    container_name: "sky20"
+- targets: ["43a3cc916a1f"]
+  labels:
+    container_name: "sky29"
+- targets: ["15bb98b07bde"]
+  labels:
+    container_name: "sky24"
+- targets: ["1b421ec536d5"]
+  labels:
+    container_name: "sky22"
+- targets: ["f8427e4c1abb"]
+  labels:
+    container_name: "sky30"
+- targets: ["f1e70aa94db2"]
+  labels:
+    container_name: "sky10"
+- targets: ["aabb2137363c"]
+  labels:
+    container_name: "sky23"
+- targets: ["b7fc04e63f5d"]
+  labels:
+    container_name: "sky16"
+- targets: ["e77206662296"]
+  labels:
+    container_name: "sky5"
+- targets: ["4561e7f534ea"]
+  labels:
+    container_name: "sky3"
+- targets: ["33d92407d80d"]
+  labels:
+    container_name: "sky27"
+- targets: ["39f8465f49c3"]
+  labels:
+    container_name: "sky7"
