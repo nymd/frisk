@@ -77,8 +77,9 @@ async function processNodeHeights(nodes: Array<any>) {
   pointHeights = [];
   for (const node of nodes) {
     
+    const pointTimestamp = new Date()
     const nodeNumber = node.name.split("-").pop()
-    await fetchHeight(node, set, nodeNumber);
+    await fetchHeight(node, set, nodeNumber, pointTimestamp);
   }
 }
 
@@ -90,17 +91,16 @@ async function processNodeBalancesAndClaims(nodes: Array<any>) {
 
     const pointTimestamp = new Date()
     const nodeNumber = node.name.split("-").pop()
-    await fetchClaims(node, set, nodeNumber, node.address);
-    await fetchBalance(node, set, nodeNumber, node.address);
+    await fetchClaims(node, set, nodeNumber, node.address, pointTimestamp);
+    await fetchBalance(node, set, nodeNumber, node.address, pointTimestamp);
 
   }
   const convertedTotalBalance = upokt(totalBalance);
   console.log(`Total node balance: ${convertedTotalBalance}`);
 }
 
-async function fetchHeight(node: any, set: string, number: number): Promise<string> {
+async function fetchHeight(node: any, set: string, number: number, pointTimestamp: Date): Promise<string> {
 
-  const pointTimestamp = new Date()
   const command = `docker exec -i ${set}${number} pocket query height`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
@@ -124,9 +124,8 @@ async function fetchHeight(node: any, set: string, number: number): Promise<stri
   return "";
 }
 
-async function fetchClaims(node: any, set: string, number: number, address: string): Promise<number> {
+async function fetchClaims(node: any, set: string, number: number, address: string, pointTimestamp: Date): Promise<number> {
 
-  const pointTimestamp = new Date()
   const command = `docker exec -i ${set}${number} pocket query node-claims ${address}`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
@@ -172,9 +171,8 @@ async function fetchJailedStatus(set: string, number: number, address: string): 
   return null;
 }
 
-async function fetchBalance(node: any, set: string, number: number, address: string): Promise<number> {
-  
-  const pointTimestamp = new Date()
+async function fetchBalance(node: any, set: string, number: number, address: string, pointTimestamp: Date): Promise<number> {
+
   const command = `docker exec -i ${set}${number} pocket query balance ${address}`;
   const { stdout, stderr } = await exec(command);
   if (!stderr)
