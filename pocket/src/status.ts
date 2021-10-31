@@ -14,16 +14,14 @@ const pointTimestamp = new Date()
 const fs = require('fs'); 
 const csv = require('csv-parser');
 const nodes: any[] = [];
-let heightPoints: Point[] = [];
+
 
 fs.createReadStream(nodeCSV).pipe(csv())
 .on('data', (data: any) => nodes.push(data));
 
 var jobHeight = new CronJob('*/20 * * * * *', async function() {
   await processNodeHeights(nodes)
-  console.log(`writing heights`)
-  writeAPI.writePoints(heightPoints)
-  writeAPI.flush() 
+
 }, null, true, 'America/Vancouver');
 jobHeight.start();
 
@@ -69,11 +67,19 @@ async function processNodeJailings(nodes: Array<any>) {
 
 async function processNodeHeights(nodes: Array<any>) {
 
-  heightPoints = [];
   for (const node of nodes) {
     
     const nodeNumber = node.name.split("-").pop()
-    await fetchHeight(node, set, nodeNumber);
+    const nodeHeight = await fetchHeight(node, set, nodeNumber);
+    const pointHeight = new Point('height')
+            .tag('set', set)
+            .tag('address', node.address)
+            .tag('moniker', node.name)
+            .intField('height', nodeHeight)
+            .timestamp(pointTimestamp)
+    
+    writeAPI.writePoint(pointHeight)
+    writeAPI.flush()
   }
 }
 
@@ -128,13 +134,7 @@ async function fetchHeight(node: any, set: string, number: number): Promise<stri
     if (matches && matches[0]) {
       const height = matches[0].replace('"height": ', '');
       if (height) {
-        const point = new Point('height')
-            .tag('set', set)
-            .tag('address', node.address)
-            .tag('moniker', node.name)
-            .intField('height', height)
-            .timestamp(pointTimestamp)
-        heightPoints.push(point)
+        return height
       }
     }
   }
