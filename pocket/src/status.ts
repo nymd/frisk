@@ -27,8 +27,8 @@ var jobHeight = new CronJob('*/20 * * * * *', async function() {
 }, null, true, 'America/Vancouver');
 jobHeight.start();
 
-var jobBalance = new CronJob('0 */5 * * * *', function() {
-  processNodeBalancesAndClaims(nodes);
+var jobBalance = new CronJob('0 */1 * * * *', async function() {
+  await processNodeBalancesAndClaims(nodes);
   writeAPI.writePoints(pointBalances)
   writeAPI.writePoints(pointClaims)
   writeAPI.flush()
