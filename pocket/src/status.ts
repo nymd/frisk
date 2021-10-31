@@ -85,8 +85,6 @@ async function processNodeHeights(nodes: Array<any>) {
 
 async function processNodeBalancesAndClaims(nodes: Array<any>) {
 
-  let totalBalance = 0;
-
   for (const node of nodes) {
 
     const pointTimestamp = new Date()
@@ -95,8 +93,7 @@ async function processNodeBalancesAndClaims(nodes: Array<any>) {
     await fetchBalance(node, set, nodeNumber, node.address, pointTimestamp);
 
   }
-  const convertedTotalBalance = upokt(totalBalance);
-  console.log(`Total node balance: ${convertedTotalBalance}`);
+  
 }
 
 async function fetchHeight(node: any, set: string, number: number, pointTimestamp: Date): Promise<string> {
@@ -193,7 +190,7 @@ async function fetchBalance(node: any, set: string, number: number, address: str
             .timestamp(pointTimestamp)
 
         pointBalances.push(pointBalance)
-        console.log(`${node.name} balance: ${convertedNodeBalance}`);
+        // console.log(`${node.name} balance: ${convertedNodeBalance}`);
       }
     }
     // return 0;
