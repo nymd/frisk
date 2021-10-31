@@ -5,23 +5,13 @@
   "main": "index.js",
   "scripts": {
     "status": "rm -rf dist/ && tsc && node dist/status.js",
-    "aat": "rm -rf dist/ && tsc && node dist/aat.js",
     "sweep": "rm -rf dist/ && tsc && node dist/sweep.js",
-    "import": "rm -rf dist/ && tsc && node dist/import.js",
-    "load": "rm -rf dist/ && tsc && node dist/load.js",
-    "unjail": "rm -rf dist/ && tsc && node dist/unjail.js",
-    "unjail-sky": "rm -rf dist/ && tsc && node dist/unjail-sky.js",
-    "stake": "rm -rf dist/ && tsc && node dist/stake.js",
-    "stake-sky": "rm -rf dist/ && tsc && node dist/stake-sky.js",
-    "unstake": "rm -rf dist/ && tsc && node dist/unstake.js",
-    "start": "rm -rf dist/ && tsc && node dist/index.js",
     "build": "rm -rf dist/ && tsc"
   },
   "repository": "https://github.com/nymd/frisk",
   "license": "MIT",
   "dependencies": {
     "@influxdata/influxdb-client": "^1.20.0",
-    "@pokt-network/pocket-js": "^0.6.16-rc",
     "@types/request-promise": "^4.1.47",
     "child_process": "^1.0.2",
     "cron": "^1.8.2",
