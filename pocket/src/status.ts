@@ -20,7 +20,6 @@ fs.createReadStream(nodeCSV).pipe(csv())
 
 var jobHeight = new CronJob('*/20 * * * * *', async function() {
   await processNodeHeights(nodes)
-  console.log(pointHeights)
   writeAPI.writePoints(pointHeights)
   writeAPI.flush()
 }, null, true, 'America/Vancouver');
