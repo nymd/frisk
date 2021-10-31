@@ -7,7 +7,7 @@ var CronJob = require('cron').CronJob;
 
 const set = argv['_'][0];
 const mode = argv['_'][1];
-const nodeCSV = `./src/accounts/${set}.csv`;
+const nodeCSV = `./src/accounts/${set}-nodes.csv`;
 const dataNodeURL = 'https://peer-1.nodes.pokt.network:4200'
 const startingAmount = 100000;
 const pointTimestamp = new Date()
