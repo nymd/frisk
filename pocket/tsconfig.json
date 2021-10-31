@@ -8,11 +8,11 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",
-    "lib": ["es6"],
+    "lib": ["es6", "dom"],
     "resolveJsonModule": true,
     "declaration": true
   },
-  "lib": ["es6"],
+  "lib": ["es6", "dom"],
   "exclude": [
     "**/__mocks__",
     "**/__tests__",
